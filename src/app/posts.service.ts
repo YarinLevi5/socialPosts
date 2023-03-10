@@ -33,6 +33,21 @@ export class PostsService {
     return this.postsUpdated.asObservable()
   }
 
+  getPost(id: string) {
+    return this.http.get<{ post: { _id: string, title: string, content: string } }>(`http://localhost:3000/api/posts/${id}`)
+  }
+
+  updatePost(id: string, title: string, content: string) {
+    const post: Post = { id: id, title, content }
+    this.http.put(`http://localhost:3000/api/posts/${id}`, post).subscribe(() => {
+      const updatedPosts = [...this.posts]
+      const oldPostIndex = updatedPosts.findIndex(post => post.id === id)
+      updatedPosts[oldPostIndex] = post
+      this.posts = updatedPosts
+      this.postsUpdated.next([...this.posts])
+    })
+  }
+
   addPost(title: string, content: string) {
     const post: Post = { id: null, title, content }
     this.http.post<{ message: string, postId: string }>('http://localhost:3000/api/posts', post).subscribe((responseData) => {

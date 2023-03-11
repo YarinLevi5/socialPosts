@@ -1,6 +1,8 @@
 const express = require("express");
 const Post = require("../models/post");
 const router = express.Router();
+const multer = require("multer");
+const storage = require("../utils/mimeIsValid");
 
 router.get("/", (req, res, next) => {
   Post.find().then((documents) => {
@@ -25,20 +27,26 @@ router.get("/:id", (req, res, next) => {
   });
 });
 
-router.post("/", (req, res, next) => {
-  console.log(req.body);
-  const { title, content } = req.body;
-  const post = new Post({
-    title,
-    content,
-  });
-  post.save().then((result) => {
-    res.status(201).json({
-      message: "Post added successfully",
-      postId: result._id,
+router.post(
+  "/",
+  multer({ storage: storage }).single("image"),
+  (req, res, next) => {
+    const url = req.protocol + "://" + req.get("host");
+    const { title, content } = req.body;
+    const post = new Post({
+      title,
+      content,
+      imagePath: url + "/images/" + req.file.filename,
     });
-  });
-});
+    post.save().then((createdPost) => {
+      let { _id, title, content, imagePath } = createdPost;
+      res.status(201).json({
+        message: "Post added successfully",
+        post: { _id, title, content, imagePath },
+      });
+    });
+  }
+);
 
 router.put("/:id", (req, res, next) => {
   const { title, content } = req.body;

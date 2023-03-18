@@ -53,6 +53,7 @@ router.post(
       title,
       content,
       imagePath: url + "/images/" + req.file.filename,
+      creator: req.userData.userId,
     });
     post.save().then((createdPost) => {
       let { _id, title, content, imagePath } = createdPost;
@@ -80,21 +81,37 @@ router.put(
       title,
       content,
       imagePath,
+      creator: req.userData.userId,
     });
-    Post.updateOne({ _id: req.params.id }, post).then(() => {
-      res.status(200).json({
-        message: "Post Updated",
+    Post.updateOne(
+      { _id: req.params.id, creator: req.userData.userId },
+      post
+    ).then((result) => {
+      if (result.nModified > 0) {
+        return res.status(200).json({
+          message: "Post Updated",
+        });
+      }
+      return res.status(401).json({
+        message: "Post not updated, not authorized!",
       });
     });
   }
 );
 
 router.delete("/:id", checkAuth, (req, res, next) => {
-  Post.deleteOne({ _id: req.params.id }).then((result) => {
-    res.status(200).json({
-      message: "Post deleted",
-    });
-  });
+  Post.deleteOne({ _id: req.params.id, creator: req.userData.userId }).then(
+    (result) => {
+      if (result.n > 0) {
+        return res.status(200).json({
+          message: "Post deleted",
+        });
+      }
+      return res.status(401).json({
+        message: "Post not deleted, not authorized!",
+      });
+    }
+  );
 });
 
 module.exports = router;

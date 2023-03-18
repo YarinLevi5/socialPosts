@@ -40,11 +40,9 @@ export class PostCreateComponent implements OnInit {
             this.postId = paramMap.get('postId')
             this.isLoading = true
             this.postsService.getPost(this.postId).subscribe(postData => {
-                console.log(postData);
-
                 this.isLoading = false
-                let { _id, title, content, imagePath } = postData.post
-                this.post = { id: _id, title, content, imagePath }
+                let { _id, title, content, imagePath, creator } = postData.post
+                this.post = { id: _id, title, content, imagePath, creator }
                 this.form.setValue({ title: this.post.title, content: this.post.content, image: this.post.imagePath })
             })
         })
@@ -71,8 +69,6 @@ export class PostCreateComponent implements OnInit {
         const reader = new FileReader()
         reader.onload = () => {
             this.imagePreview = reader.result as string
-            console.log(this.imagePreview);
-
         }
         reader.readAsDataURL(file)
     }

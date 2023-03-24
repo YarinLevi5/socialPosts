@@ -1,6 +1,4 @@
 import { AuthGuard } from './guards/auth.guard';
-import { SignUpComponent } from './auth/sign-up/sign-up.component';
-import { SignInComponent } from './auth/sign-in/sign-in.component';
 import { PostCreateComponent } from './posts/post-create/post-create.component';
 import { PostListComponent } from './posts/post-list/post-list.component';
 import { NgModule } from '@angular/core';
@@ -10,8 +8,7 @@ const routes: Routes = [
   { path: '', component: PostListComponent },
   { path: 'create', component: PostCreateComponent, canActivate: [AuthGuard] },
   { path: 'edit/:postId', component: PostCreateComponent, canActivate: [AuthGuard] },
-  { path: 'login', component: SignInComponent },
-  { path: 'signup', component: SignUpComponent },
+  { path: "", loadChildren: () => import('./modules/auth.module').then(module => module.AuthModule) }
 ];
 
 @NgModule({
